@@ -83,7 +83,7 @@ def AddToDict(result,show):
         id = str(result['id'])
         if (ExistsInDict(id)):
                 print "Adding votes from " + show[0].encode("latin_1", 'replace') + " to " + show_name[id].encode("latin_1", 'replace')
-                show_vote[id] = show_vote[id] + show[1]
+                show_vote[id] += show[1]
         else:
                 print "Adding new show " + result['title'].encode("latin_1", 'replace')
                 show_name[id] = result['title']
