@@ -1,3 +1,4 @@
+import urllib
 import urllib2
 import simplejson as json
 import time
@@ -20,10 +21,11 @@ def FileStuff(filein,fileout):
         try:
                 fin = open(filein, "r")
                 fout = codecs.open(fileout, 'w', 'utf-8')
+		ftemp = codecs.open("temp.ha", 'w', 'utf-8')
         except IOError:
                 print "Invalid file"
 
-        files = [fin,fout]
+        files = [fin,fout,ftemp]
         return files
 
 
@@ -38,9 +40,20 @@ def ChooseOne(res,name,votes):
                 print "-------------------------------"
                 option += 1
 
-        dec = int(raw_input("Which one is correct for '" + name.encode("latin_1", 'replace') + "' (if not listed enter 0): "))
-        if (dec == 0):
-                return DiscoverInfo(raw_input("Please enter new search string: "),votes)
+	choice = raw_input("Which one is correct for '" + name.encode("latin_1", 'replace') + "' (if not listed enter name to search): ")	
+
+	try:
+		dec = int(choice)
+        except ValueError:
+                return DiscoverInfo(choice,votes)
+
+	while not((dec-1) in range(len(res))):
+		choice = raw_input("Please enter valid option or new search: ")
+		try:    
+	                dec = int(choice)
+       		except ValueError:
+                	return DiscoverInfo(choice,votes)
+
 
         return res[dec-1]
 
@@ -48,8 +61,8 @@ def ChooseOne(res,name,votes):
 def DiscoverInfo(name,votes):
         information = []
         failures = 0
-        url = "http://mal-api.com/anime/search?q="
-        req = urllib2.Request(url + name)
+        url = "http://mal-api.com/anime/search?"
+        req = urllib2.Request(url + urllib.urlencode({'q' : name}))
         opener = urllib2.build_opener()
         while (True):
                 raw = opener.open(req)
@@ -84,10 +97,12 @@ def AddToDict(result,show):
         if (ExistsInDict(id)):
                 print "Adding votes from " + show[0].encode("latin_1", 'replace') + " to " + show_name[id].encode("latin_1", 'replace')
                 show_vote[id] += show[1]
+		openfile[2].write(result['title'] + "," + str(show_vote[id]) + ",********\n")
         else:
                 print "Adding new show " + result['title'].encode("latin_1", 'replace')
                 show_name[id] = result['title']
                 show_vote[id] = show[1]
+		openfile[2].write(result['title'] + "," + str(show[1]) + "\n")
 
 
 def PrintTheCSV():
