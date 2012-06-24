@@ -34,9 +34,9 @@ def ChooseOne(res,name,votes):
         if (len(res) < 1):
                 print "Couldn't find show with : " + name.encode("latin_1", 'replace')
                 return DiscoverInfo(raw_input("Please enter new search string: "),votes)
-        for i in res:
+        for opt in res:
                 print "Option " + str(option)
-                print "   Title: " + i['title'].encode("latin_1", 'replace')
+                print "   Title: " + opt['title'].encode("latin_1", 'replace')
                 print "-------------------------------"
                 option += 1
 
@@ -132,10 +132,10 @@ def PrintTheErrors(num):
 openfile = FileStuff(filenamein,filenameout)
 raw_list = openfile[0].readlines()
 
-for i in raw_list:
+for entry in raw_list:
         ashow = []
-        i = i.strip('\n')
-        ashow = i.split(',')
+        entry = entry.strip('\n')
+        ashow = entry.split(',')
         ashow[1] = int(ashow[1])
         show_list.append(ashow)
 
