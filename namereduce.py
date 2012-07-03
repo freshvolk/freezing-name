@@ -62,9 +62,8 @@ def ChooseOne(res,name,votes):
         choice = raw_input("Please enter valid option or new search: ")
         try:    
             dec = int(choice)
-               except ValueError:
+        except ValueError:
             return DiscoverInfo(choice,votes)
-
 
     return res[dec-1]
 
