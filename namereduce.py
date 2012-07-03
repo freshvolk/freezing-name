@@ -140,7 +140,7 @@ def PrintTheErrors(num):
     for show in failed_shows:
         if (l > num):
             break
-         print show[0] + "," + str(show[1])
+        print show[0] + "," + str(show[1])
         l += 1
     
 
