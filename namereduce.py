@@ -1,9 +1,15 @@
+#Brian Volk
+#Script to take in CSV of Anime titles and votes, discover alt spellings using the
+#unoffical MAL api.
+
+
 import urllib
 import urllib2
 import simplejson as json
 import time
 import codecs
 import operator
+import os
 
 print "Output file will OVERWRITE other files w/o confirmation"
 filenamein = raw_input("Name of input file: ")
@@ -19,9 +25,12 @@ show_vote = {}
 
 def FileStuff(filein,fileout):
     try:
-        fin = open(filein, "r")
-        fout = codecs.open(fileout, 'w', 'utf-8')
-        ftemp = codecs.open("temp.ha", 'w', 'utf-8')
+        fin = open(filein, "r") 
+        #Input CSV file
+        fout = codecs.open(fileout, 'w', 'utf-8') 
+        #Main output file
+        ftemp = codecs.open("temp.ha", 'w', 'utf-8') 
+        #Incomplete output file in case there is a catastrophic error
     except IOError:
         print "Invalid file"
 
@@ -32,9 +41,11 @@ def FileStuff(filein,fileout):
 def ChooseOne(res,name,votes):
     option = 1
     if (len(res) < 1):
+        #Allow for new search
         print "Couldn't find show with : " + name.encode("latin_1", 'replace')
         return DiscoverInfo(raw_input("Please enter new search string: "),votes)
     for opt in res:
+        #Display each option
         print "Option " + str(option)
         print "   Title: " + opt['title'].encode("latin_1", 'replace')
         print "-------------------------------"
@@ -43,7 +54,7 @@ def ChooseOne(res,name,votes):
     choice = raw_input("Which one is correct for '" + name.encode("latin_1", 'replace') + "' (if not listed enter name to search): ")    
 
     try:
-        dec = int(choice)
+        dec = int(choice) 
     except ValueError:
         return DiscoverInfo(choice,votes)
 
@@ -61,7 +72,9 @@ def ChooseOne(res,name,votes):
 def DiscoverInfo(name,votes):
     information = []
     failures = 0
+    #Base url for search API
     url = "http://mal-api.com/anime/search?"
+    #Deal with non URL chars
     req = urllib2.Request(url + urllib.urlencode({'q' : name}))
     opener = urllib2.build_opener()
     while (True):
@@ -97,11 +110,13 @@ def AddToDict(result,show):
     if (ExistsInDict(id)):
         print "Adding votes from " + show[0].encode("latin_1", 'replace') + " to " + show_name[id].encode("latin_1", 'replace')
         show_vote[id] += show[1]
+        #Write to temp file
         openfile[2].write(result['title'] + "," + str(show_vote[id]) + ",********\n")
     else:
         print "Adding new show " + result['title'].encode("latin_1", 'replace')
         show_name[id] = result['title']
         show_vote[id] = show[1]
+        #Write to temp file
         openfile[2].write(result['title'] + "," + str(show[1]) + "\n")
 
 
@@ -109,9 +124,11 @@ def PrintTheCSV():
     temp = []
     toPrint = []
     for i in show_name.iteritems():
+        #Create line to write to file
         temp.append([show_name[i[0]],show_vote[i[0]]])
     sorted_list = sorted(temp, key=operator.itemgetter(1), reverse=True)
     for name,vote in sorted_list:
+        #Write to file
         openfile[1].write(name + "," + str(vote) + "\n")
         toPrint.append(name + "," + str(vote) + "\n")    
 
@@ -119,12 +136,12 @@ def PrintTheCSV():
 def PrintTheErrors(num):
     l = 0
     errors = []
-    openfile[1].write("\n" + "-------FAILED-------" + "\n")
-    openfile[1].write("The shows here encountered JSON errors when retrieving\n" + "\n")
+    print "\n" + "-------FAILED-------"
+    print "The shows here encountered JSON errors when retrieving"
     for show in failed_shows:
         if (l > num):
             break
-        openfile[1].write(show[0] + "," + str(show[1]) + "\n")
+         print show[0] + "," + str(show[1])
         l += 1
     
 
@@ -165,4 +182,6 @@ PrintTheErrors(length)
 for f in openfile:
     f.close()
 
+os.remove("temp.ha")
+    
 print "Script Complete"    
